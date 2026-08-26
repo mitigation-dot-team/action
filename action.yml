@@ -1,0 +1,25 @@
+name: 'Mitigation Governance Scan'
+description: 'Motor autónomo de gobernanza de seguridad y riesgo para Pull Requests'
+inputs:
+  api-key:
+    description: 'API Key de Mitigation (Free/Pro/Enterprise)'
+    required: true
+  diff-file:
+    description: 'Ruta al archivo .diff a analizar'
+    required: false
+    default: 'pr.diff'
+  version:
+    description: 'Versión del ejecutable mitigation a descargar'
+    required: false
+    default: 'v1.6.0'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Download and Run Mitigation Engine
+      shell: bash
+      env:
+        MITIGATION_API_KEY: ${{ inputs.api-key }}
+        DIFF_FILE: ${{ inputs.diff-file }}
+        VERSION: ${{ inputs.version }}
+      run: ${{ github.action_path }}/entrypoint.sh
