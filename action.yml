@@ -1,15 +1,15 @@
 name: 'Mitigation Governance Scan'
-description: 'Motor autónomo de gobernanza de seguridad y riesgo para Pull Requests'
+description: 'Autonomous security and risk governance engine for pull requests'
 inputs:
   api-key:
-    description: 'API Key de Mitigation (Free/Pro/Enterprise)'
+    description: 'Mitigation API key (Free/Pro/Enterprise)'
     required: true
   diff-file:
-    description: 'Ruta al archivo .diff a analizar'
+    description: 'Path to the .diff file to analyze'
     required: false
     default: 'pr.diff'
   version:
-    description: 'Versión del ejecutable mitigation a descargar'
+    description: 'Version of the mitigation executable to download'
     required: false
     default: 'v1.6.0'
 
