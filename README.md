@@ -32,7 +32,7 @@ jobs:
 
 - `api-key`: Required. Your Mitigation API key.
 - `diff-file`: Optional. Path to the `.diff` file to analyze. Defaults to `pr.diff`.
-- `version`: Optional. Version of the Mitigation executable to download. Defaults to `v1.6.0`.
+- `version`: Optional. Version of the Mitigation executable to download. Defaults to `latest`.
 
 ### Mitigation Plans
 
