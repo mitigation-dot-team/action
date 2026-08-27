@@ -11,7 +11,7 @@ inputs:
   version:
     description: 'Version of the mitigation executable to download'
     required: false
-    default: 'v1.6.0'
+    default: 'latest'
 
 runs:
   using: 'composite'
