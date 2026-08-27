@@ -23,7 +23,7 @@ jobs:
           fetch-depth: 0
 
       - name: Run Mitigation
-        uses: mitigation-dot-team/action@v1.6.0
+        uses: mitigation-dot-team/action@main
         with:
           api-key: ${{ secrets.MITIGATION_API_KEY }}
 ```
