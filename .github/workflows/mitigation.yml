@@ -1,0 +1,28 @@
+name: Security Governance
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+  push:
+    branches:
+      - main
+      - dev
+
+jobs:
+  mitigation-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get PR Git Diff
+        run: |
+          git diff origin/${{ github.base_ref }}...HEAD > pr_changes.diff
+
+      - name: Run Mitigation
+        uses: mitigation-dot-team/action@v1.6.0
+        with:
+          api-key: ${{ secrets.MERGESHIELD_API_KEY  }}
+          diff-file: pr_changes.diff
