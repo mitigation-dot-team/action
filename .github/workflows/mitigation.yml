@@ -22,7 +22,7 @@ jobs:
           git diff origin/${{ github.base_ref }}...HEAD > pr_changes.diff
 
       - name: Run Mitigation
-        uses: mitigation-dot-team/action@v1.6.0
+        uses: mitigation-dot-team/action@main
         with:
           api-key: ${{ secrets.MERGESHIELD_API_KEY  }}
           diff-file: pr_changes.diff
