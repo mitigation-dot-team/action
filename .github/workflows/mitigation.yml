@@ -28,3 +28,6 @@ jobs:
         with:
           api-key: ${{ secrets.MERGESHIELD_API_KEY  }}
           diff-file: pr_changes.diff
+        env:
+          TOKEN: ${{ secrets.TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
