@@ -14,13 +14,11 @@ esac
 if [ -z "$VERSION" ] || [ "$VERSION" = "latest" ]; then
   if [ -n "$TOKEN" ]; then
     RESOLVE_AUTH=( -H "Authorization: Bearer $TOKEN" )
-  elif [ -n "$GITHUB_TOKEN" ]; then
-    RESOLVE_AUTH=( -H "Authorization: Bearer $GITHUB_TOKEN" )
   else
     echo "Error: No token available to resolve the latest release version."
     exit 1
   fi
-  RESOLVED_VERSION=$(curl "${RESOLVE_AUTH[@]}" -fsSL "https://api.github.com/repos/mitigation-dot-team/cli/releases/latest" | grep '"tag_name":' | sed 's/.*"tag_name": *"\([^"]*\)".*/\1/')
+  RESOLVED_VERSION=$(curl "${RESOLVE_AUTH[@]}" -L "https://api.github.com/repos/mitigation-dot-team/cli/releases/latest" | grep '"tag_name":' | sed 's/.*"tag_name": *"\([^"]*\)".*/\1/')
   if [ -z "$RESOLVED_VERSION" ]; then
     echo "Error: Failed to resolve latest version from GitHub API."
     exit 1

@@ -30,4 +30,3 @@ jobs:
           diff-file: pr_changes.diff
         env:
           TOKEN: ${{ secrets.TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
