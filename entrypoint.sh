@@ -11,7 +11,7 @@ case "$ARCH" in
 esac
 
 # Single asset URL (version included in filename)
-BINARY_URL="https://github.com/mitigation-dot-team/cli/releases/download/${VERSION}/mitigation_${VERSION}_${OS}_${ARCH}.tar.gz"
+BINARY_URL="https://github.com/mitigation-dot-team/cli/releases/download/${VERSION}/mitigation_${VERSION:1}_${OS}_${ARCH}.tar.gz"
 
 echo "Downloading Mitigation Engine for ${OS}/${ARCH} (version ${VERSION})..."
 tmpfile=$(mktemp)

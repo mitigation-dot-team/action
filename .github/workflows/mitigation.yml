@@ -26,7 +26,7 @@ jobs:
       - name: Run Mitigation
         uses: mitigation-dot-team/action@main
         with:
-          api-key: ${{ secrets.MERGESHIELD_API_KEY  }}
+          api-key: ${{ secrets.MITIGATION_API_KEY  }}
           diff-file: pr_changes.diff
         env:
           TOKEN: ${{ secrets.TOKEN }}
