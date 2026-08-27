@@ -20,7 +20,15 @@ echo "Downloading Mitigation Engine (${VERSION}) for ${OS}/${ARCH})..."
 success=0
 for BINARY_URL in "${BINARY_URLS[@]}"; do
   tmpfile=$(mktemp)
-  if curl -fSL -o "$tmpfile" "$BINARY_URL"; then
+  # Use provided token if available (secrets.TOKEN, GITHUB_TOKEN, or PAT)
+  AUTH_HDR=()
+  if [ -n "$TOKEN" ]; then
+    AUTH_HDR=( -H "Authorization: Bearer $TOKEN" )
+  elif [ -n "$GITHUB_TOKEN" ]; then
+    AUTH_HDR=( -H "Authorization: Bearer $GITHUB_TOKEN" )
+  fi
+
+  if curl "${AUTH_HDR[@]}" -fSL -o "$tmpfile" "$BINARY_URL"; then
     if gzip -t "$tmpfile" >/dev/null 2>&1; then
       tar -xz -f "$tmpfile" -C /tmp
       rm -f "$tmpfile"
