@@ -19,7 +19,9 @@ jobs:
 
       - name: Get PR Git Diff
         run: |
-          git diff origin/${{ github.base_ref }}...HEAD > pr_changes.diff
+          base_ref="${{ github.base_ref || 'main' }}"
+          git fetch origin "$base_ref"
+          git diff "origin/$base_ref...HEAD" > pr_changes.diff
 
       - name: Run Mitigation
         uses: mitigation-dot-team/action@main
