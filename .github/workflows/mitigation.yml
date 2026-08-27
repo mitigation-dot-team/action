@@ -24,7 +24,7 @@ jobs:
           git diff "origin/$base_ref...HEAD" > pr_changes.diff
 
       - name: Run Mitigation
-        uses: mitigation-dot-team/action@main
+        uses: ./
         with:
           api-key: ${{ secrets.MITIGATION_API_KEY  }}
           diff-file: pr_changes.diff

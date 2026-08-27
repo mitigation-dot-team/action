@@ -27,21 +27,44 @@ if [ -z "$VERSION" ] || [ "$VERSION" = "latest" ]; then
 fi
 
 # Single asset URL (version included in filename)
-BINARY_URL="https://github.com/mitigation-dot-team/cli/releases/download/${VERSION}/mitigation_${VERSION:1}_${OS}_${ARCH}.tar.gz"
+# Build asset name and attempt to download via GitHub Releases API using asset id
+OWNER="mitigation-dot-team"
+REPO="cli"
+VER_NO_V="${VERSION#v}"
+NAME="mitigation_${VER_NO_V}_${OS}_${ARCH}.tar.gz"
 
-echo "Downloading Mitigation Engine for ${OS}/${ARCH} (version ${VERSION})..."
+echo "Resolving asset id for $NAME (release $VERSION)..."
 tmpfile=$(mktemp)
-# Build Authorization header only for curl; do NOT echo the token or the header
+
+# Prepare auth header for API requests if token available
 if [ -n "$TOKEN" ]; then
-  CURL_AUTH=( -H "Authorization: Bearer $TOKEN" )
+  API_AUTH=( -H "Authorization: Bearer $TOKEN" )
 elif [ -n "$GITHUB_TOKEN" ]; then
-  CURL_AUTH=( -H "Authorization: Bearer $GITHUB_TOKEN" )
+  API_AUTH=( -H "Authorization: Bearer $GITHUB_TOKEN" )
 else
-  CURL_AUTH=()
+  API_AUTH=()
 fi
 
-if ! curl "${CURL_AUTH[@]}" -fSL -o "$tmpfile" "$BINARY_URL"; then
-  echo "Failed to download $BINARY_URL"
+if ! command -v jq >/dev/null 2>&1; then
+  echo "Error: 'jq' is required to parse GitHub API responses in this script." >&2
+  echo "Install jq or modify the script to parse JSON another way." >&2
+  exit 1
+fi
+
+ASSET_ID=$(curl -sS "${API_AUTH[@]}" -H "Accept: application/vnd.github+json" \
+  "https://api.github.com/repos/${OWNER}/${REPO}/releases/tags/${VERSION}" \
+  | jq -r --arg NAME "$NAME" '.assets[] | select(.name==$NAME) | .id')
+
+if [ -z "$ASSET_ID" ] || [ "$ASSET_ID" = "null" ]; then
+  echo "Error: asset '$NAME' not found in release '${VERSION}'" >&2
+  exit 1
+fi
+
+echo "Downloading asset id $ASSET_ID..."
+# Download the asset using the special release asset endpoint; request binary stream
+if ! curl "${API_AUTH[@]}" -L -H "Accept: application/octet-stream" \
+  "https://api.github.com/repos/${OWNER}/${REPO}/releases/assets/${ASSET_ID}" -o "$tmpfile"; then
+  echo "Failed to download asset id $ASSET_ID" >&2
   rm -f "$tmpfile"
   exit 1
 fi
@@ -51,8 +74,8 @@ if gzip -t "$tmpfile" >/dev/null 2>&1; then
   rm -f "$tmpfile"
   echo "Downloaded and extracted mitigation binary"
 else
-  echo "Downloaded file is not in gzip format: $BINARY_URL"
-  echo "Response preview:" 
+  echo "Downloaded file is not in gzip format (asset id $ASSET_ID)" >&2
+  echo "Response preview:"
   head -n 50 "$tmpfile" || true
   rm -f "$tmpfile"
   exit 1
