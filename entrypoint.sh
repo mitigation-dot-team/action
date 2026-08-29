@@ -10,7 +10,7 @@ REPO="action"
 case "$ARCH" in
   x86_64) ARCH="amd64" ;;
   aarch64|arm64) ARCH="arm64" ;;
-  *) echo "Architecture not supported: $ARCH"; exit 1 ;;
+  *) echo "Architecture not supported: ($ARCH)"; exit 1 ;;
 esac
 
 # Resolve version from GitHub API if set to "latest"
