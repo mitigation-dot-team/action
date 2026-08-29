@@ -84,7 +84,18 @@ fi
 
 if [ ! -f "$DIFF_FILE" ]; then
   echo "Generating a valid diff for the current Pull Request..."
-  git diff ORIG_HEAD HEAD > "$DIFF_FILE" || git diff HEAD~1 HEAD > "$DIFF_FILE"
+  git diff ORIG_HEAD HEAD > "$DIFF_FILE" || git diff HEAD~1 HEAD > "$DIFF_FILE" || true
+fi
+
+if [ ! -s "$DIFF_FILE" ]; then
+  echo "No changes detected in diff file '$DIFF_FILE'. Exiting with code 1 as requested."
+  exit 1
+fi
+
+if [ ! -x "/tmp/mitigation" ]; then
+  echo "Error: mitigation binary not found or not executable at /tmp/mitigation"
+  ls -la /tmp || true
+  exit 1
 fi
 
 /tmp/mitigation scan \
