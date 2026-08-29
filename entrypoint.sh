@@ -10,7 +10,7 @@ REPO="action"
 case "$ARCH" in
   x86_64) ARCH="amd64" ;;
   aarch64|arm64) ARCH="arm64" ;;
-  *) echo "Architecture not supported: ($ARCH)"; exit 1 ;;
+  *) echo "Architecture not supported: $ARCH"; exit 1 ;;
 esac
 
 # Resolve version from GitHub API if set to "latest"
@@ -84,18 +84,7 @@ fi
 
 if [ ! -f "$DIFF_FILE" ]; then
   echo "Generating a valid diff for the current Pull Request..."
-  git diff ORIG_HEAD HEAD > "$DIFF_FILE" || git diff HEAD~1 HEAD > "$DIFF_FILE" || true
-fi
-
-if [ ! -s "$DIFF_FILE" ]; then
-  echo "No changes detected in diff file '$DIFF_FILE'. Exiting with code 1 as requested."
-  exit 1
-fi
-
-if [ ! -x "/tmp/mitigation" ]; then
-  echo "Error: mitigation binary not found or not executable at /tmp/mitigation"
-  ls -la /tmp || true
-  exit 1
+  git diff ORIG_HEAD HEAD > "$DIFF_FILE" || git diff HEAD~1 HEAD > "$DIFF_FILE"
 fi
 
 /tmp/mitigation scan \
