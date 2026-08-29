@@ -13,11 +13,32 @@ esac
 BINARY_URL="https://github.com/mitigation-dot-team/mitigation/releases/download/${VERSION}/mitigation_${OS}_${ARCH}.tar.gz"
 
 echo "Downloading Mitigation Engine (${VERSION}) for ${OS}/${ARCH}..."
-curl -sSL "$BINARY_URL" | tar -xz -C /tmp
+TMP_ARCHIVE="/tmp/mitigation_${VERSION}_${OS}_${ARCH}.tar.gz"
+
+if ! curl -fSL --retry 3 -o "$TMP_ARCHIVE" "$BINARY_URL"; then
+  echo "Error: Failed to download Mitigation Engine from $BINARY_URL"
+  exit 1
+fi
+
+if ! tar -xz -f "$TMP_ARCHIVE" -C /tmp; then
+  echo "Error: Failed to extract $TMP_ARCHIVE"
+  exit 1
+fi
 
 if [ ! -f "$DIFF_FILE" ]; then
   echo "Generating a valid diff for the current Pull Request..."
-  git diff ORIG_HEAD HEAD > "$DIFF_FILE" || git diff HEAD~1 HEAD > "$DIFF_FILE"
+  git diff ORIG_HEAD HEAD > "$DIFF_FILE" || git diff HEAD~1 HEAD > "$DIFF_FILE" || true
+fi
+
+if [ ! -s "$DIFF_FILE" ]; then
+  echo "No changes detected in diff file '$DIFF_FILE'. Exiting with code 1 as requested."
+  exit 1
+fi
+
+if [ ! -x "/tmp/mitigation" ]; then
+  echo "Error: mitigation binary not found or not executable at /tmp/mitigation"
+  ls -la /tmp || true
+  exit 1
 fi
 
 /tmp/mitigation scan \
