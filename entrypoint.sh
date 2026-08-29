@@ -10,7 +10,7 @@ case "$ARCH" in
   *) echo "Architecture not supported: ($ARCH)"; exit 1 ;;
 esac
 
-BINARY_URL="https://github.com/mitigation-dot-team/mitigation-action/releases/download/${VERSION}/mitigation_${OS}_${ARCH}.tar.gz"
+BINARY_URL="https://github.com/mitigation-dot-team/mitigation/releases/download/${VERSION}/mitigation_${OS}_${ARCH}.tar.gz"
 
 echo "Downloading Mitigation Engine (${VERSION}) for ${OS}/${ARCH}..."
 curl -sSL "$BINARY_URL" | tar -xz -C /tmp
