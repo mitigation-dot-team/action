@@ -16,7 +16,7 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - name: Download and Run Mitigation Engine
+    - name: Run Mitigation Engine
       shell: bash
       env:
         MITIGATION_API_KEY: ${{ inputs.api-key }}
