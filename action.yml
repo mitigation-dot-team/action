@@ -12,7 +12,11 @@ inputs:
     description: 'Version of the mitigation executable to download'
     required: false
     default: 'latest'
-
+outputs:
+  pr_comment_body:
+    description: 'Markdown body of the PR comment to post'
+  pr_comment:
+    description: 'Path to the generated PR comment markdown file'
 runs:
   using: 'composite'
   steps:
