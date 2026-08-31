@@ -30,11 +30,3 @@ jobs:
           diff-file: pr_changes.diff
         env:
           TOKEN: ${{ secrets.TOKEN }}
-
-      - name: Post PR comment (create or update)
-        if: ${{ github.event_name == 'pull_request' && (env.POST_COMMENT == 'true' || env.POST_COMMENT_SECRET == 'true') }}
-        uses: peter-evans/create-or-update-comment@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          issue-number: ${{ github.event.pull_request.number }}
-          body: ${{ steps.mitigation-scan.outputs.pr_comment_body }}
