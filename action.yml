@@ -90,8 +90,6 @@ runs:
         # Prepare auth header for API requests if token available
         if [ -n "$TOKEN" ]; then
           API_AUTH=( -H "Authorization: Bearer $TOKEN" )
-        elif [ -n "$GITHUB_TOKEN" ]; then
-          API_AUTH=( -H "Authorization: Bearer $GITHUB_TOKEN" )
         else
           API_AUTH=()
         fi
@@ -150,6 +148,6 @@ runs:
       if: ${{ github.event_name == 'pull_request' && (env.POST_COMMENT == 'true' || env.POST_COMMENT_SECRET == 'true') }}
       uses: peter-evans/create-or-update-comment@v4
       with:
-        token: ${{ secrets.GITHUB_TOKEN }}
+        token: ${{ secrets.TOKEN }}
         issue-number: ${{ github.event.pull_request.number }}
         body: ${{ steps.mitigation_engine.outputs.pr_comment_body }}
