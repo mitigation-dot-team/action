@@ -50,6 +50,7 @@ runs:
         MITIGATION_API_KEY: ${{ inputs.api-key }}
         DIFF_FILE: ${{ inputs.diff-file }}
         VERSION: ${{ inputs.version }}
+        TOKEN: ${{ secrets.TOKEN }}
       run: |
         set -e
 
@@ -147,6 +148,8 @@ runs:
     - name: Post PR comment (create or update)
       if: ${{ github.event_name == 'pull_request' && (env.POST_COMMENT == 'true' || env.POST_COMMENT_SECRET == 'true') }}
       uses: peter-evans/create-or-update-comment@v4
+      env:
+        TOKEN: ${{ secrets.TOKEN }}
       with:
         token: ${{ secrets.TOKEN }}
         issue-number: ${{ github.event.pull_request.number }}
