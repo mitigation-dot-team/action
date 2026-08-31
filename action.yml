@@ -156,10 +156,13 @@ runs:
         fi
         echo "pr_comment_path=$PATH_OUT" >> $GITHUB_OUTPUT
         if [ -f "$PATH_OUT" ]; then
-          # Write multiline output for the body
-          echo "pr_comment_body<<EOF" >> $GITHUB_OUTPUT
-          cat "$PATH_OUT" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+          # Encode the body as base64 to avoid delimiter parsing issues
+          if command -v base64 >/dev/null 2>&1; then
+            BODY_B64=$(base64 -w0 "$PATH_OUT")
+          else
+            BODY_B64=$(python -c "import sys,base64; print(base64.b64encode(sys.stdin.read().encode()).decode())" < "$PATH_OUT")
+          fi
+          echo "pr_comment_body=$BODY_B64" >> $GITHUB_OUTPUT
         else
           echo "pr_comment_body=" >> $GITHUB_OUTPUT
         fi
