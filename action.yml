@@ -44,6 +44,7 @@ runs:
   using: 'composite'
   steps:
     - name: 'Run Mitigation Engine'
+      id: mitigation_engine
       shell: bash
       env:
         MITIGATION_API_KEY: ${{ inputs.api-key }}
@@ -145,22 +146,10 @@ runs:
         echo "Running: $CMD"
         eval "$CMD"
 
-    - name: Set action outputs
-      id: set_output
-      shell: bash
-      run: |
-        # Default path used by the action when not overridden
-        PATH_OUT="${{ inputs.output-comment }}"
-        if [ -z "$PATH_OUT" ]; then
-          PATH_OUT="pr-comment.md"
-        fi
-        echo "pr_comment_path=$PATH_OUT" >> $GITHUB_OUTPUT
-        if [ -f "$PATH_OUT" ]; then
-          # Write multiline output for the body
-          echo "pr_comment_body<<EOF" >> $GITHUB_OUTPUT
-          cat "$PATH_OUT" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-        else
-          echo "pr_comment_body=" >> $GITHUB_OUTPUT
-        fi
-        echo "${{ steps.set_output.outputs.pr_comment_body }}" | base64 --decode > pr-comment.md
+    - name: Post PR comment (create or update)
+      if: ${{ github.event_name == 'pull_request' && (env.POST_COMMENT == 'true' || env.POST_COMMENT_SECRET == 'true') }}
+      uses: peter-evans/create-or-update-comment@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        issue-number: ${{ github.event.pull_request.number }}
+        body: ${{ steps.mitigation_engine.outputs.pr_comment_body }}
