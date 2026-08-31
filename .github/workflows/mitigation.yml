@@ -13,7 +13,7 @@ jobs:
   mitigation-scan:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
@@ -30,3 +30,22 @@ jobs:
           diff-file: pr_changes.diff
         env:
           TOKEN: ${{ secrets.TOKEN }}
+
+      - name: Set action outputs
+        id: set_output
+        shell: bash
+        run: |
+          # Default path used by the action when not overridden
+          PATH_OUT="${{ inputs.output-comment }}"
+          if [ -z "$PATH_OUT" ]; then
+            PATH_OUT="pr-comment.md"
+          fi
+          echo "pr_comment_path=$PATH_OUT" >> $GITHUB_OUTPUT
+          if [ -f "$PATH_OUT" ]; then
+            # Write multiline output for the body
+            echo "pr_comment_body<<EOF" >> $GITHUB_OUTPUT
+            cat "$PATH_OUT" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          else
+            echo "pr_comment_body=" >> $GITHUB_OUTPUT
+          fi
