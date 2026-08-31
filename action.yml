@@ -1,5 +1,6 @@
 name: 'Mitigation Governance Scan'
 description: 'Autonomous security and risk governance engine for pull requests'
+
 inputs:
   api-key:
     description: 'Mitigation API key (Free/Pro/Enterprise)'
@@ -12,11 +13,43 @@ inputs:
     description: 'Version of the mitigation executable to download'
     required: false
     default: 'latest'
+  output-report:
+    description: 'Path to write risk report'
+    required: false
+    default: 'report.md'
+  output-comment:
+    description: 'Path to write PR comment'
+    required: false
+  mock-llm:
+    description: 'Whether to use the mock LLM'
+    required: false
+    default: 'false'
+  module:
+    description: 'Standalone scanner module to run (optional)'
+    required: false
+    default: ''
+  extra-args:
+    description: 'Additional flags to pass to the CLI (optional)'
+    required: false
+    default: ''
+
 outputs:
+  pr_comment_path:
+    description: 'Path to generated PR comment file'
+    value: ${{ steps.set_output.outputs.pr_comment_path }}
+
   pr_comment_body:
-    description: 'Markdown body of the PR comment to post'
-  pr_comment:
-    description: 'Path to the generated PR comment markdown file'
+    description: 'Content of generated PR comment'
+    value: ${{ steps.set_output.outputs.pr_comment_body }}
+
+  report_path:
+    description: 'Path to generated risk report file'
+    value: ${{ steps.set_output.outputs.report_path }}
+
+  report_body:
+    description: 'Content of generated risk report'
+    value: ${{ steps.set_output.outputs.report_body }}
+
 runs:
   using: 'composite'
   steps:
@@ -26,4 +59,55 @@ runs:
         MITIGATION_API_KEY: ${{ inputs.api-key }}
         DIFF_FILE: ${{ inputs.diff-file }}
         VERSION: ${{ inputs.version }}
+        OUTPUT_COMMENT: ${{ inputs.output-comment }}
+        OUTPUT_REPORT: ${{ inputs.output-report }}
+      id: mitigation_action
       run: ${{ github.action_path }}/entrypoint.sh
+    - name: Set action outputs
+      id: set_output
+      shell: bash
+      run: |
+        # Candidate paths
+        PATH_REPORT="${{ inputs.output-report }}"
+        if [ -z "$PATH_REPORT" ]; then
+          PATH_REPORT="report.md"
+        fi
+
+        PATH_COMMENT="${{ inputs.output-comment }}"
+        if [ -z "$PATH_COMMENT" ]; then
+          PATH_COMMENT="pr-comment.md"
+        fi
+
+        # Expose report path
+        echo "report_path=$PATH_REPORT" >> $GITHUB_OUTPUT
+
+        if [ -f "$PATH_REPORT" ] && [ -s "$PATH_REPORT" ]; then
+          if command -v base64 >/dev/null 2>&1; then
+            REPORT_B64=$(base64 -w0 "$PATH_REPORT")
+          else
+            REPORT_B64=$(python -c "import sys,base64; print(base64.b64encode(sys.stdin.read().encode()).decode())" < "$PATH_REPORT")
+          fi
+          echo "report_body=$REPORT_B64" >> $GITHUB_OUTPUT
+        else
+          echo "report_body=" >> $GITHUB_OUTPUT
+        fi
+
+        # Prefer report as PR comment body when available, else fallback to comment file
+        if [ -f "$PATH_REPORT" ] && [ -s "$PATH_REPORT" ]; then
+          PATH_OUT="$PATH_REPORT"
+        else
+          PATH_OUT="$PATH_COMMENT"
+        fi
+
+        echo "pr_comment_path=$PATH_OUT" >> $GITHUB_OUTPUT
+
+        if [ -f "$PATH_OUT" ] && [ -s "$PATH_OUT" ]; then
+          if command -v base64 >/dev/null 2>&1; then
+            BODY_B64=$(base64 -w0 "$PATH_OUT")
+          else
+            BODY_B64=$(python -c "import sys,base64; print(base64.b64encode(sys.stdin.read().encode()).decode())" < "$PATH_OUT")
+          fi
+          echo "pr_comment_body=$BODY_B64" >> $GITHUB_OUTPUT
+        else
+          echo "pr_comment_body=" >> $GITHUB_OUTPUT
+        fi

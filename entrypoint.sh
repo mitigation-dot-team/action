@@ -87,8 +87,20 @@ if [ ! -f "$DIFF_FILE" ]; then
   git diff ORIG_HEAD HEAD > "$DIFF_FILE" || git diff HEAD~1 HEAD > "$DIFF_FILE"
 fi
 
+# Determine output paths (allow overriding via env)
+OUT_COMMENT_PATH="${OUTPUT_COMMENT:-pr-comment.md}"
+OUT_REPORT_PATH="${OUTPUT_REPORT:-report.md}"
+
+# Run the scan and capture stdout/stderr; allow the tool to write the comment file.
+SCAN_OUT=$(mktemp)
 /tmp/mitigation scan \
   --diff-file="$DIFF_FILE" \
   --api-key="$MITIGATION_API_KEY" \
-  --output-report=report.md \
-  --output-comment=pr-comment.md
+  --output-comment="$OUT_COMMENT_PATH" \
+  --output-report="$OUT_REPORT_PATH" 2>&1 | tee "$SCAN_OUT" || true
+
+# Fallback: if the comment file is missing or empty, use scan stdout as the PR comment
+if [ ! -s "$OUT_COMMENT_PATH" ] && [ -s "$SCAN_OUT" ]; then
+  echo "Warning: $OUT_COMMENT_PATH is empty; using scan stdout as fallback" >&2
+  cp "$SCAN_OUT" "$OUT_COMMENT_PATH"
+fi
