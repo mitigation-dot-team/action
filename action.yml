@@ -137,7 +137,7 @@ runs:
         fi
 
         # Execute the mitigation scan with the provided parameters
-        BIN=/tmp/mitigation scan
+        BIN=/tmp/mitigation
         CMD="$BIN scan --diff-file='$DIFF_FILE' --api-key='$MITIGATION_API_KEY' --output-report='${{ inputs.output-report }}' --output-comment='${{ inputs.output-comment }}'"
         if [ "${{ inputs.mock-llm }}" = "true" ]; then CMD="$CMD --mock-llm"; fi
         if [ -n "${{ inputs.module }}" ]; then CMD="$CMD --module='${{ inputs.module }}'"; fi
