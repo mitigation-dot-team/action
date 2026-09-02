@@ -33,29 +33,28 @@ jobs:
         env:
           TOKEN: ${{ secrets.TOKEN }}
 
-      - name: Decode Report
-        id: vars
-        shell: bash
-        run: |
-          decode () {
-            printf '%s' "$1" | base64 -d
-          }
-          markdown="$(decode "${{ steps.mitigation.outputs.report_body }}")"
-          EOF_DELIMITER=$(dd if=/dev/urandom bs=15 count=1 2>/dev/null | base64 | tr -dc 'A-Za-z0-9')
+      #- name: Decode Report
+      #  id: vars
+      #  shell: bash
+      #  run: |
+      #    decode () {
+      #      printf '%s' "$1" | base64 -d
+      #    }
+      #    markdown="$(decode "${{ steps.mitigation.outputs.report_body }}")"
+      #    EOF_DELIMITER=$(dd if=/dev/urandom bs=15 count=1 2>/dev/null | base64 | tr -dc 'A-Za-z0-9')
+      #    echo "report_body<<$EOF_DELIMITER" >> $GITHUB_ENV
+      #    echo "$markdown" >> $GITHUB_ENV
+      #    echo "$EOF_DELIMITER" >> $GITHUB_ENV
 
-          echo "report_body<<$EOF_DELIMITER" >> $GITHUB_ENV
-          echo "$markdown" >> $GITHUB_ENV
-          echo "$EOF_DELIMITER" >> $GITHUB_ENV
-
-      - name: Post PR comment (create or update)
-        if: ${{ steps.mitigation.outputs.report_body != '' && github.event.pull_request.number != '' }}
-        uses: peter-evans/create-or-update-comment@v5
-        with:
-          token: ${{ secrets.TOKEN }}
-          issue-number: ${{ github.event.pull_request.number }}
-          # Usamos "|" para indicarle a YAML que conserve el formato multilínea exacto
-          body: |
-            ${{ env.report_body }}
+      #- name: Post PR comment (create or update)
+      #  if: ${{ steps.mitigation.outputs.report_body != '' && github.event.pull_request.number != '' }}
+      #  uses: peter-evans/create-or-update-comment@v5
+      #  with:
+      #    token: ${{ secrets.TOKEN }}
+      #    issue-number: ${{ github.event.pull_request.number }}
+      #    # Usamos "|" para indicarle a YAML que conserve el formato multilínea exacto
+      #    body: |
+      #      ${{ env.report_body }}
 
       - name: Upload Report Artifacts
         if: ${{ steps.mitigation.outputs.report_body != '' && github.event.pull_request.number != '' }}
