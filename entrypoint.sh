@@ -104,3 +104,24 @@ if [ ! -s "$OUT_COMMENT_PATH" ] && [ -s "$SCAN_OUT" ]; then
   echo "Warning: $OUT_COMMENT_PATH is empty; using scan stdout as fallback" >&2
   cp "$SCAN_OUT" "$OUT_COMMENT_PATH"
 fi
+
+# if report is present, post the result via cURL POST to Github API (if GITHUB_TOKEN is available)
+# curl -H ‘Authorization: Token 6cXXXXXXXXXba’ -X POST -d ‘{ “body”: “My Review comments updated” }’ 'https://api.github.com/repos/owner/repo/issues/number/comments’
+if [ -s "$OUT_REPORT_PATH" ] && [ -n "$GITHUB_TOKEN" ]; then
+  echo "Posting report to GitHub API..."
+  PAYLOAD_TMP=$(mktemp)
+  # Use jq to safely encode the report content as the JSON {"body": "..."}
+  if ! jq -Rs '{body: .}' "$OUT_REPORT_PATH" > "$PAYLOAD_TMP"; then
+    echo "Warning: Failed to build JSON payload from $OUT_REPORT_PATH" >&2
+    rm -f "$PAYLOAD_TMP"
+  else
+    curl -sS -X POST \
+      "${API_AUTH[@]}" \
+      -H "Accept: application/vnd.github+json" \
+      -H "Content-Type: application/json" \
+      -d @"$PAYLOAD_TMP" \
+      "https://api.github.com/repos/${OWNER}/${REPO}/issues/${GITHUB_REF##*/}/comments" \
+      || echo "Warning: Failed to post report to GitHub API" >&2
+    rm -f "$PAYLOAD_TMP"
+  fi
+fi
