@@ -1,5 +1,9 @@
 name: 'Mitigation Governance Scan'
 description: 'Autonomous security and risk governance engine for pull requests'
+author: 'Daniel Naranjo'
+branding:
+  color: 'green'
+  icon: 'shield'
 
 inputs:
   api-key:
