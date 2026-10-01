@@ -7,7 +7,7 @@ branding:
 
 inputs:
   api-key:
-    description: 'Mitigation API key (Free/Pro/Enterprise)'
+    description: 'Mitigation API key (Free/Pro/Enterprise).'
     required: true
   diff-file:
     description: 'Path to the .diff file to analyze'
@@ -29,11 +29,15 @@ inputs:
     required: false
     default: 'false'
   module:
-    description: 'Standalone scanner module to run (optional)'
+    description: 'Standalone scanner module to run (optional).'
     required: false
     default: ''
-  extra-args:
-    description: 'Additional flags to pass to the CLI (optional)'
+  pr-number:
+    description: 'Pull request number to include in the report (optional).'
+    required: false
+    default: ''
+  repo:
+    description: 'Repository in owner/name format (optional)'
     required: false
     default: ''
 

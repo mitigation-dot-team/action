@@ -30,6 +30,8 @@ jobs:
           api-key: ${{ secrets.MITIGATION_API_KEY  }}
           diff-file: pr_changes.diff
           output-report: report.md
+          pr-number: ${{ github.event.pull_request.number }}
+          repo: ${{ github.repository }}
         env:
           TOKEN: ${{ secrets.TOKEN }}
 
